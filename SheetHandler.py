@@ -97,20 +97,24 @@ def checkOffTable(name):
         if row[LODGER_COLUMN] == name:
             sheet.update_cell(i+1, LODGER_TABLE_COLUMN+1, True)
 
-def resetTablesCol():
+def resetTablesCol(key = "TRUE", value = "FALSE"):
     # TODO optimize with .batch_update or something of the sort
         # currently uses a bunch of api calls
     sheet = getSheetInfo("Lodgers")
     data = sheet.get_all_values()
     for i,row in enumerate(data):
-        if row[LODGER_TABLE_COLUMN] == "TRUE":
-            sheet.update_cell(i+1, LODGER_TABLE_COLUMN+1, "FALSE")
+        if row[LODGER_TABLE_COLUMN] == key:
+            sheet.update_cell(i+1, LODGER_TABLE_COLUMN+1, value)
 
-def fillTablesCol():
-    # TODO optimize with .batch_update or something of the sort
-        # currently uses a bunch of api calls
+def updateTableCleaner(name, date = None):
+    sheet = getSheetInfo("Lodgers")
+    sheet.update_acell("F1", name)
+    if not date == None:
+        sheet.update_acell("E3", date)
+
+def getTableInfo():
+    print("getted table info-------")
     sheet = getSheetInfo("Lodgers")
     data = sheet.get_all_values()
-    for i,row in enumerate(data):
-        if row[LODGER_TABLE_COLUMN] == "FALSE":
-            sheet.update_cell(i+1, LODGER_TABLE_COLUMN+1, "TRUE")
+    print(data[2][4], data[0][5])
+    return {"date":data[2][4], "cleaner":data[0][5]}

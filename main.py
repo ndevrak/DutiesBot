@@ -13,7 +13,6 @@ import MessageHandler as MH
 import CronHandler as CH
 import NameHandler as NH
 
-
 intents = discord.Intents.default()
 intents.message_content = True
 

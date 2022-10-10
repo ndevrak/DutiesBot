@@ -1,4 +1,5 @@
 import random
+from turtle import update
 
 from SheetHandler import *
 from NameHandler import *
@@ -17,9 +18,11 @@ class MessageHandler:
                         ".savename" : {"funct" : self.savename, "checks": []},
                         ".percentdone" : {"funct" : self.percentdone, "checks": []},
                         ".notdone" : {"funct" : self.notdone, "checks": [self.sentByAdmin]},
-                        ".sendasdutiesbot" : {"funct" : self.sendasdutiesbot, "checks" : [self.sentByAdmin]},
+                        ".sendasdutiesbot" : {"funct" : self.sendasdutiesbot, "checks" : []},
                         ".help duties" : {"funct" : self.helpduties, "checks" : []},
-                        ".wiped tables" : {"funct" : self.wipedtables, "checks" : [self.nh.checkID]},
+                        ".wiped tables" : {"funct" : self.wipedtables, "checks" : [self.nh.checkID, self.todayTableCleaner]},
+                        ".pass tables" : {"funct" : self.passtables, "checks" : [self.nh.checkID, self.todayTableCleaner]},
+                        ".tables remind" : {"funct" : self.tablesremind, "checks" : [self.sentByAdmin]},
                         # test method
                         ".dutybot test 1" : {"funct" : self.dutybotTest1, "checks": [self.nh.checkID, self.sentByAdmin]}
                         }
@@ -47,6 +50,10 @@ class MessageHandler:
 
     def sentByAdmin(self, atAuthor):
         return atAuthor in ADMINS
+    
+    def todayTableCleaner(self, atAuthor):
+        name = self.nh.getNameFromID(atAuthor)
+        return name == getTableInfo()["cleaner"]
 
     def atAuthor(self, message):
         return '<@' + str(message.author.id) + '>'
@@ -65,7 +72,7 @@ class MessageHandler:
         
         #all duties done
         if len(dutyInfo["duties"]) == sum(dutyInfo["done"]):
-            return "You finished your duties this week, " + atAuth + " thanks for keeping the lodge clean!"
+            return "You finished your duties this week, " + atAuth + " thanks for keeping the lodge clean! :broom:"
         
         #not all duties done
         numDuties = len(dutyInfo["duties"])
@@ -91,7 +98,10 @@ class MessageHandler:
             index = range(len(dutyInfo["coords"]))
 
         for i in index:
-            checkOffDuty(dutyInfo["coords"][int(i)-1])
+            try:
+                checkOffDuty(dutyInfo["coords"][int(i)-1])
+            except IndexError:
+                return atAuth + " that duty index is out of range. Try again."
         await message.add_reaction(SNAP_EMOTE)
         return "Checked off your duties.\n" + str(await self.whatsmyduty(message))
 
@@ -134,7 +144,7 @@ class MessageHandler:
         strOut = "These brothers have not done their duty\n"
         # get data once and feed it in for each name to reduce api calls
         data = getSheetInfo("Duties")[0]
-        for id in self.ids_names.keys():
+        for id in self.nh.ids_names.keys():
             name = self.nh.getNameFromID(id)
             dutyInfo = getDutyInfo(name, data)
             # if number of duties is greater than number checked off
@@ -159,6 +169,22 @@ class MessageHandler:
         checkOffTable(self.nh.getNameFromID(atAuth))
         await message.add_reaction(SNAP_EMOTE)
         return atAuth + " checked it off, thanks for cleaning the tables!"
+    
+    async def passtables(self, message):
+        atAuth = self.atAuthor(message)
+        lodgers = notCleanedLodgers()
+        if len(lodgers) <= 1:
+            return atAuth + " you are the last, you cannot pass on tables today."
+        if not self.nh.getNameFromID(atAuth) in lodgers:
+            return atAuth + " you already wiped tables, no need to pass it."
+        newCleaner = random.choice(lodgers)
+        updateTableCleaner(newCleaner)
+        return atAuth + " passed tables off to " + self.nh.getIDFromName(newCleaner) + "."
+
+    async def tablesremind(self, message):
+        cleaner = getTableInfo()["cleaner"]
+        cleanerID = self.nh.getIDFromName(cleaner)
+        return cleanerID + " this is a reminder to wipe the tables. \nReact with read if you saw this."
 
     async def helpduties(self, message):
         # TODO add descriptions to each method so .helpduties is actually useful
