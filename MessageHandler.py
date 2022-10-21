@@ -20,8 +20,9 @@ class MessageHandler:
                         ".notdone" : {"funct" : self.notdone, "checks": [self.sentByAdmin]},
                         ".sendasdutiesbot" : {"funct" : self.sendasdutiesbot, "checks" : []},
                         ".help duties" : {"funct" : self.helpduties, "checks" : []},
-                        ".wiped tables" : {"funct" : self.wipedtables, "checks" : [self.nh.checkID, self.todayTableCleaner]},
+                        ".tables wiped" : {"funct" : self.wipedtables, "checks" : [self.nh.checkID, self.todayTableCleaner]},
                         ".pass tables" : {"funct" : self.passtables, "checks" : [self.nh.checkID, self.todayTableCleaner]},
+                        ".redo tables" : {"funct" : self.redotables, "checks" : [self.sentByAdmin]},
                         ".tables remind" : {"funct" : self.tablesremind, "checks" : [self.sentByAdmin]},
                         # test method
                         ".dutybot test 1" : {"funct" : self.dutybotTest1, "checks": [self.nh.checkID, self.sentByAdmin]}
@@ -170,12 +171,12 @@ class MessageHandler:
         await message.add_reaction(SNAP_EMOTE)
         return atAuth + " checked it off, thanks for cleaning the tables!"
     
-    async def passtables(self, message):
+    async def passtables(self, message, checkCleaned = True):
         atAuth = self.atAuthor(message)
         lodgers = notCleanedLodgers()
         if len(lodgers) <= 1:
             return atAuth + " you are the last, you cannot pass on tables today."
-        if not self.nh.getNameFromID(atAuth) in lodgers:
+        if (checkCleaned and (not self.nh.getNameFromID(atAuth) in lodgers)):
             return atAuth + " you already wiped tables, no need to pass it."
         newCleaner = random.choice(lodgers)
         updateTableCleaner(newCleaner)
@@ -185,6 +186,9 @@ class MessageHandler:
         cleaner = getTableInfo()["cleaner"]
         cleanerID = self.nh.getIDFromName(cleaner)
         return cleanerID + " this is a reminder to wipe the tables. \nReact with read if you saw this."
+    
+    async def redotables(self, message):
+        return await self.passtables(message, False)
 
     async def helpduties(self, message):
         # TODO add descriptions to each method so .helpduties is actually useful

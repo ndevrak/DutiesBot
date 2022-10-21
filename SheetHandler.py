@@ -102,7 +102,7 @@ def resetTablesCol(key = "TRUE", value = "FALSE"):
         # currently uses a bunch of api calls
     sheet = getSheetInfo("Lodgers")
     data = sheet.get_all_values()
-    for i,row in enumerate(data):
+    for i,row in enumerate(data):  
         if row[LODGER_TABLE_COLUMN] == key:
             sheet.update_cell(i+1, LODGER_TABLE_COLUMN+1, value)
 
@@ -113,8 +113,6 @@ def updateTableCleaner(name, date = None):
         sheet.update_acell("E3", date)
 
 def getTableInfo():
-    print("getted table info-------")
     sheet = getSheetInfo("Lodgers")
     data = sheet.get_all_values()
-    print(data[2][4], data[0][5])
     return {"date":data[2][4], "cleaner":data[0][5]}

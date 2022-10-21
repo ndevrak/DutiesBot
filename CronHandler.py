@@ -51,7 +51,6 @@ class CronHandler:
         return False
 
     async def tableCron(self):
-        print("ran table cron")
         # if everyone has cleaned, reset the table
         if len(notCleanedLodgers()) == 0:
             resetTablesCol()
