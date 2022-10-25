@@ -23,9 +23,7 @@ class MessageHandler:
                         ".tables wiped" : {"funct" : self.wipedtables, "checks" : [self.nh.checkID, self.todayTableCleaner]},
                         ".pass tables" : {"funct" : self.passtables, "checks" : [self.nh.checkID, self.todayTableCleaner]},
                         ".redo tables" : {"funct" : self.redotables, "checks" : [self.sentByAdmin]},
-                        ".tables remind" : {"funct" : self.tablesremind, "checks" : [self.sentByAdmin]},
-                        # test method
-                        ".dutybot test 1" : {"funct" : self.dutybotTest1, "checks": [self.nh.checkID, self.sentByAdmin]}
+                        ".tables remind" : {"funct" : self.tablesremind, "checks" : [self.sentByAdmin]}
                         }
         
 
@@ -161,6 +159,10 @@ class MessageHandler:
             return "no fuck you"
         return message.content[17:]
 
+    ######################################
+    ########### TABLES METHODS ###########
+    ######################################
+
     async def wipedtables(self, message):
         # TODO
         # check when someone uses this its their day to do tables
@@ -196,9 +198,3 @@ class MessageHandler:
         for key in self.actions.keys():
             outstr += "\t" + key + "\n"
         return outstr
-
-    async def dutybotTest1(self, message):
-        # test method
-        print(getSheetInfo("Duties")[0][3][22])
-        print(getSheetInfo("Duties")[0][16][22])
-        return "tested"

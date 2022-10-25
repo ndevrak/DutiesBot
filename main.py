@@ -9,6 +9,7 @@ from datetime import datetime as dt
 
 ## Local imports -------------------------
 from constants import *
+from secrets import *
 import MessageHandler as MH
 import CronHandler as CH
 import NameHandler as NH
@@ -90,4 +91,4 @@ async def on_error(event, *args, **kwargs):
 
 
 # Run Bot
-client.run("ODE4NTYwOTk0MjA0MDU3NjEw.YEZ2VQ.LHd5zNfwJ6GGY8_NW1zRx7AAjgA")
+client.run(botToken)
