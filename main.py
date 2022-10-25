@@ -91,4 +91,4 @@ async def on_error(event, *args, **kwargs):
 
 
 # Run Bot
-client.run(botToken)
+client.run(samBotToken)
