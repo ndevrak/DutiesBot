@@ -67,7 +67,7 @@ class TablesCog(commands.Cog):
         if dt.now().weekday() > 4:
             return False
         # if its the standard tables times
-        if hour in TABLES_TIMES:
+        if int(hour) in TABLES_TIMES:
             return True
         # if its between standard times and tables have not run yet
         if int(hour) > int(TABLES_TIMES[0]) and int(hour) < int(TABLES_TIMES[1]):
@@ -106,7 +106,7 @@ class TablesCog(commands.Cog):
             discordMessage += "It is " + person + "'s turn to wipe tables today, but their name is not saved.\nTell them to save their name using '.savename LASTNAME'."
         else:
             discordMessage += getIDFromName(person) + " it's your turn to wipe tables today."
-        channel = await self.bot.fetch_channel(SAM_CHANNEL_ID)
+        channel = await self.bot.fetch_channel(CLEANING_CHANNEL_ID)
         await channel.send(discordMessage)
 
 def setup(bot):
