@@ -10,7 +10,7 @@ def getSheetInfo(sheet):
         # for duties sheet it returns the values in [0] and the sheet in [1]
     scope = ['https://www.googleapis.com/auth/drive']
     creds = ServiceAccountCredentials.from_json_keyfile_name(
-        'sheets_api.json', scope)
+        'Bot/Duties_func/sheets_api.json', scope)
     client = gspread.authorize(creds)
     # Open Duties Spreadsheet and open current week's sheet
     # ss = client.open('Duties - Fall 2022')
