@@ -10,6 +10,10 @@ class DutiesCog(commands.Cog):
     def __init__(self,bot):
         self.bot = bot
 
+    def cog_check(self, ctx):
+        print(ctx.command.name)
+        return True
+
     @discord.slash_command(description = "Gives link to duties sheet.")
     async def duties(self, ctx):
         await ctx.respond(f'{ctx.author.mention} \nhttps://docs.google.com/spreadsheets/d/1ea1RgZnsXDPV9tngNhNj4icn7Ujm4UphFhp5DcYICt4/edit?usp=sharing')
@@ -19,7 +23,7 @@ class DutiesCog(commands.Cog):
         if person == "":
             atAuth = ctx.author.mention
             if not checkID(atAuth):
-                await ctx.respond(f"{ctx.author.mention} save your name with '.savename LASTNAME'.")
+                await ctx.respond(f"{ctx.author.mention} save your name with '/savename LASTNAME'.")
                 return
         else:
             if not checkName(person):
@@ -54,7 +58,7 @@ class DutiesCog(commands.Cog):
                     ):
         if whos == "":
             if not checkID(ctx.author.mention):
-                await ctx.respond(f"{ctx.author.mention} save your name with '.savename LASTNAME'.")
+                await ctx.respond(f"{ctx.author.mention} save your name with '/savename LASTNAME'.")
                 return
             whos = getNameFromID(ctx.author.mention)
         if not checkName(whos):

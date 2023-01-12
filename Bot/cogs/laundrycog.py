@@ -21,8 +21,12 @@ class LaundryCog(commands.Cog):
             }
         
         self.laundry_loop.start()
+    
+    def cog_check(self, ctx):
+        print(ctx.command.name)
+        return True
         
-    @discord.slash_command()
+    @discord.slash_command(description = "Shows the status of all laundry machines.")
     async def laundrystatus(self,ctx):
         outStr = f"{ctx.author.mention} the status of the laundry machines is:\n"
         for m in self.machines.keys():
@@ -34,7 +38,7 @@ class LaundryCog(commands.Cog):
                 outStr += f" {m} was run by {readMachine(m)['whoRan']} has been done for {minutes} min.\n"
         await ctx.respond(outStr)
     
-    @discord.slash_command()
+    @discord.slash_command(description = "Resets a washer / drier.")
     async def resetmachine(self, ctx, machine):
         setMachine(machine, ctx.author.mention, -1)
         await ctx.respond(f"Reset machine {machine}")
@@ -51,13 +55,13 @@ class LaundryCog(commands.Cog):
         await ctx.respond(ctx.author.mention + " started " + machine + " for " + str(time) + " minute(s).")
         return
 
-    @discord.slash_command()
+    @discord.slash_command(description = "Starts a timer for a washer.")
     async def washer(self, ctx, num : Option(int, required = True), time : Option(int, default = wash_time_def)):
         machine = "w" + str(num)
         await self.machineMessage(ctx, machine, time)
     
-    @discord.slash_command()
-    async def drier(self, ctx, num : Option(int, required = True), time : Option(int, default = wash_time_def)):
+    @discord.slash_command(description = "Starts a timer for a drier.")
+    async def drier(self, ctx, num : Option(int, required = True), time : Option(int, default = dry_time_def)):
         machine = "d" + str(num)
         await self.machineMessage(ctx,machine,time)
 
@@ -65,7 +69,6 @@ class LaundryCog(commands.Cog):
     async def laundry_loop(self):
         for m in self.machines:
             min = machineStatus(m)
-            print(f"{m} has {min} left")
             if min == -1:
                 channel = await self.bot.fetch_channel(LAUNDRY_CHANNEL_ID)
                 await channel.send(f"{readMachine(m)['whoRan']} your laundry in {m} is done!")
