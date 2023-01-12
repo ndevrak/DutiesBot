@@ -6,7 +6,7 @@ dry_time_def = 45
 
 laundry_json_path = "Bot/Laundry_func/laundry.json"
 
-TIME_FMT = "%y-%m-%d %H:%M"
+LAUNDRY_TIME_FMT = "%y-%m-%d %H:%M"
 
 def readLaundryJson():
     global laundry_json_path
@@ -26,13 +26,20 @@ def readMachine(machine):
     data = readLaundryJson()
     return data[machine]
 
-def machineStatus(machine):
+def minTillDone(machine):
     data = readMachine(machine)
     now = dt.now()
-    machineStart = dt.strptime(data["lastRan"], TIME_FMT)
+    machineStart = dt.strptime(data["lastRan"], LAUNDRY_TIME_FMT)
     minutes = int(data["runTime"] - (now-machineStart).total_seconds()/60)
     return minutes
 
 def setMachine(machine, atAuth, runTime):
-    newData = {machine : {"lastRan":dt.now().strftime(TIME_FMT),"whoRan" : atAuth, "runTime" : int(runTime)  }}
+    newData = {machine : {"lastRan":dt.now().strftime(LAUNDRY_TIME_FMT),"whoRan" : atAuth, "runTime" : int(runTime), "notified" : 0}}
     updateLaundryJson(newData)
+
+def updateNotified(machine, noti = 1):
+    data = readMachine(machine)
+    print(data)
+    data["notified"] = noti
+    print(data)
+    updateLaundryJson({machine:data})

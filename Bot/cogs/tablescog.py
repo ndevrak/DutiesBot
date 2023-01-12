@@ -67,10 +67,14 @@ class TablesCog(commands.Cog):
         if dt.now().weekday() > 4:
             return False
         # if its the standard tables times
+        print(TABLES_TIMES)
         if int(hour) in TABLES_TIMES:
             return True
         # if its between standard times and tables have not run yet
         if int(hour) > int(TABLES_TIMES[0]) and int(hour) < int(TABLES_TIMES[1]):
+            print(getTableInfo()["date"])
+            print(day)
+            print(getTableInfo()["date"] == day)
             if getTableInfo()["date"] == day:
                 return False
             return True
@@ -79,8 +83,9 @@ class TablesCog(commands.Cog):
 
     @tasks.loop(hours=1)
     async def tablesloop(self):
-        print(f"tables loop will run : {self.runtables()}")
-        if not self.runtables():
+        willruntables = self.runtables()
+        print(f"tables loop will run : {willruntables}")
+        if not willruntables:
             return
 
         if len(notCleanedLodgers()) == 0:
@@ -91,6 +96,9 @@ class TablesCog(commands.Cog):
         today = dt.now().strftime(CRON_DATE_FMT)
         # load in current data
         currentInfo = getTableInfo()
+        print(today == currentInfo["date"])
+        print(today)
+        print(currentInfo["date"])
         if today == currentInfo["date"]:
             # tables already done today
             if loadTablesLodgers()[currentInfo["cleaner"]]:
