@@ -67,14 +67,10 @@ class TablesCog(commands.Cog):
         if dt.now().weekday() > 4:
             return False
         # if its the standard tables times
-        print(TABLES_TIMES)
         if int(hour) in TABLES_TIMES:
             return True
         # if its between standard times and tables have not run yet
         if int(hour) > int(TABLES_TIMES[0]) and int(hour) < int(TABLES_TIMES[1]):
-            print(getTableInfo()["date"])
-            print(day)
-            print(getTableInfo()["date"] == day)
             if getTableInfo()["date"] == day:
                 return False
             return True
