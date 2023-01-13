@@ -96,9 +96,6 @@ class TablesCog(commands.Cog):
         today = dt.now().strftime(CRON_DATE_FMT)
         # load in current data
         currentInfo = getTableInfo()
-        print(today == currentInfo["date"])
-        print(today)
-        print(currentInfo["date"])
         if today == currentInfo["date"]:
             # tables already done today
             if loadTablesLodgers()[currentInfo["cleaner"]]:

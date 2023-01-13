@@ -39,7 +39,5 @@ def setMachine(machine, atAuth, runTime):
 
 def updateNotified(machine, noti = 1):
     data = readMachine(machine)
-    print(data)
     data["notified"] = noti
-    print(data)
     updateLaundryJson({machine:data})
