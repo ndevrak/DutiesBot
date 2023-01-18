@@ -92,6 +92,25 @@ class DutiesCog(commands.Cog):
         newData = {atAuth: lastname}
         updateName(newData)
         await ctx.respond( atAuth + ", saved your name as " + lastname + ".")
+    
+    @discord.slash_command()
+    async def whois(self, ctx, name : Option(str, "either discord id or lastname", required = True)):
+        atAuth = ctx.author.mention
+        name = name.lower()
+        if name[0] == "<":
+            if not checkID(name):
+                await ctx.respond( atAuth + " unknown user ID")
+                return
+            await ctx.respond(atAuth + f" name is {getNameFromID(name)}")
+            return
+        
+        name = name[0].upper() + name[1:]
+        if not checkName(name):
+            await ctx.respond(atAuth + " unkown name")
+            return
+        await ctx.respond(atAuth + f" discord id is {getIDFromName(name)}")
+        return
+
 
     @discord.slash_command(description = "Shows percent of duties done.")
     async def percentdone(self, ctx):
