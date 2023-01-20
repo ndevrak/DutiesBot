@@ -36,7 +36,7 @@ CRON_TIME_FMT = "%H"
 # Cron Date format str
 CRON_DATE_FMT = "%m-%d"
 # Tables Values
-RUN_TABLES = True
+RUN_TABLES = False
 # 24 Hour reminder to do tables
 TABLES_TIMES = [10,22]
 # Lodger Table Column

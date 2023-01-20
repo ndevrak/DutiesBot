@@ -16,20 +16,23 @@ def getSheetInfo(sheet):
     # ss = client.open('Duties - Fall 2022')
     ss = client.open_by_key(SHEET_KEY)
     if (sheet == 'Duties'):
-        dutiesSheet = ss.sheet1
-        return [dutiesSheet.get_all_values(), dutiesSheet]
+        #dutiesSheet = ss.sheet1
+        #return [dutiesSheet.get_all_values(), dutiesSheet]
+        dutiesSheet = ss.worksheet('[Current Week]')
+        return dutiesSheet
     elif (sheet == 'Lodgers'):
         lodgersSheet = ss.worksheet('Lodgers')
         return lodgersSheet
     elif (sheet == 'Codes'):
         codeSheet = ss.worksheet('Codes')
         return codeSheet
-    return
+    return ss.worksheet(sheet)
+
 
 def getDutyInfo(name, data = None):
     # allows a fixed set of data to be used to reduce sheets api calls
     if data == None:
-        data = getSheetInfo("Duties")[0]
+        data = getSheetInfo("Duties").get_all_values()
     # empty dictionary for duties info
     outDict = {"duties" : [], "rooms" : [], "floors" :[], "done" : [], "coords" : []}
 
@@ -61,10 +64,12 @@ def getDutyInfo(name, data = None):
     return outDict
     
 def checkOffDuty(coord):
-    sheet = getSheetInfo('Duties')[1]
+    sheet = getSheetInfo('Duties')
     # coord can be gotten from getDutyInfo(name)
     sheet.update_cell(coord[0], coord[1], True)
-    return
+    #cell = sheet.cell(coord[0], coord[1])
+    #cell.value = True
+    #sheet.update_cells([cell], value_input_option='USER_ENTERED')
 
 def loadTablesLodgers():
     # fetch sheet data
@@ -98,13 +103,19 @@ def checkOffTable(name):
             sheet.update_cell(i+1, LODGER_TABLE_COLUMN+1, True)
 
 def resetTablesCol(key = "TRUE", value = "FALSE"):
-    # TODO optimize with .batch_update or something of the sort
-        # currently uses a bunch of api calls
+    # wipes all values in tables to FALSE
     sheet = getSheetInfo("Lodgers")
-    data = sheet.get_all_values()
-    for i,row in enumerate(data):  
-        if row[LODGER_TABLE_COLUMN] == key:
-            sheet.update_cell(i+1, LODGER_TABLE_COLUMN+1, value)
+
+    cells = []
+    for row,v in enumerate(sheet.col_values(LODGER_TABLE_COLUMN+1)):
+        print(v,row)
+        if v == key:
+            c = sheet.cell(row+1,LODGER_TABLE_COLUMN+1)
+            c.value = value
+            cells.append(c)
+    print(cells)
+    if len(cells) >0:
+        sheet.update_cells(cells, value_input_option='USER_ENTERED')
 
 def updateTableCleaner(name, date = None):
     sheet = getSheetInfo("Lodgers")

@@ -20,35 +20,37 @@ class DutiesCog(commands.Cog):
 
     @discord.slash_command(description = "Lists off duties of author or person listed.")
     async def whatsmyduty(self, ctx, person : Option(str, "Who's duties to check.", default = "")):
+        atAuth = ctx.author.mention
         if person == "":
-            atAuth = ctx.author.mention
             if not checkID(atAuth):
-                await ctx.respond(f"{ctx.author.mention} save your name with '/savename LASTNAME'.")
+                await ctx.respond(f"{atAuth} save your name with '/savename LASTNAME'.")
                 return
+            person = getNameFromID(atAuth)
         else:
             if not checkName(person):
-                await ctx.respond(f"{person} your name is not saved, check for mispelling and make sure your name is saved.")
+                await ctx.respond(f"{person}'s name is not saved, check for mispelling and make sure your name is saved.")
                 return
-            atAuth = getIDFromName(person)
-        dutyInfo = getDutyInfo(getNameFromID(atAuth))
-
+        strOut = self.getDutyString(person)
+        await ctx.respond(strOut)
+        return
+    
+    def getDutyString(self, person):
+        personID = getIDFromName(person)
+        dutyInfo = getDutyInfo(person)
         if len(dutyInfo["duties"]) == 0:
-            await ctx.respond("You have no duties this week " + atAuth + " !!")
-            return
+            return "You have no duties this week " + personID + " !!"
             
         if len(dutyInfo["duties"]) == sum(dutyInfo["done"]):
-            await ctx.respond( "You finished your duties this week, " + atAuth + " thanks for keeping the lodge clean! :broom:")
-            return
+            return "You finished your duties this week, " + personID + " thanks for keeping the lodge clean! :broom:"
         
         numDuties = len(dutyInfo["duties"])
-        strOut = "" + atAuth + " you have " + str(numDuties) + " duties this week \n"
+        strOut = "" + personID + " you have " + str(numDuties) + " duties this week \n"
         for i in range(len(dutyInfo["duties"])):
             tempStr = "" + str(i+1) + " .   " + dutyInfo["duties"][i] + " " + dutyInfo["floors"][i] + " " + dutyInfo["rooms"][i]
             if dutyInfo["done"][i] == 1:
                 tempStr = "~~" + tempStr + "~~"
             strOut += tempStr + "\n"
-        await ctx.respond(strOut)
-        return
+        return strOut
 
     @discord.slash_command(description = "Checks off all (or chosen) duties for author (or person).")
     async def didduty(self, 
@@ -56,28 +58,30 @@ class DutiesCog(commands.Cog):
                     whos : Option(str, "Who's duty did you do?", default=""),
                     number : Option(int, "Duty number, only 1 at a time", default=-1)
                     ):
+        
         if whos == "":
             if not checkID(ctx.author.mention):
                 await ctx.respond(f"{ctx.author.mention} save your name with '/savename LASTNAME'.")
                 return
             whos = getNameFromID(ctx.author.mention)
         if not checkName(whos):
-            await ctx.respond(f"{whos} your name is not saved, check for mispelling and make sure your name is saved.")
+            await ctx.respond(f"{whos} your name is not saved , check for mispelling and make sure your name is saved.")
             return
         dutyInfo = getDutyInfo(whos)
 
         if number < 0:
-            number = range(len(dutyInfo["coords"]))
+            number = range(1,len(dutyInfo["coords"])+1)
         else: number = [number]
 
-        for i in number:
-            try:
-                checkOffDuty(dutyInfo["coords"][int(i)-1])
-            except IndexError:
-                await ctx.respond(ctx.author.mention + " that duty index is out of range. Try again.")
-                return
+        if max(number) > len(dutyInfo["coords"]) or min(number) < 1:
+            await ctx.respond(ctx.author.mention + " that duty index is out of range. Try again.")
+            return
+
         await ctx.respond("Checked off your duties.")
-        await self.whatsmyduty(ctx, person = whos)
+        for i in number:
+            checkOffDuty(dutyInfo["coords"][0])
+        await ctx.channel.send(self.getDutyString(whos))
+        return
 
     @discord.slash_command(description = "Saves author's last name for dutybot use.")
     async def savename(self, ctx, lastname : Option(str, "Your Lastname (capitalize first letter).", requried=True)):
@@ -119,7 +123,7 @@ class DutiesCog(commands.Cog):
         p10, p5, p1, p0 = "██", "▓", "▒", "░"
         perc = percent
         percBar = ""
-        while perc > 10:
+        while perc >= 10:
             percBar += p10
             perc -= 10
         while perc > 5:
