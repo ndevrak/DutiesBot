@@ -79,7 +79,7 @@ class DutiesCog(commands.Cog):
 
         await ctx.respond("Checked off your duties.")
         for i in number:
-            checkOffDuty(dutyInfo["coords"][0])
+            checkOffDuty(dutyInfo["coords"][i-1])
         await ctx.channel.send(self.getDutyString(whos))
         return
 
