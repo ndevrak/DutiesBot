@@ -118,7 +118,7 @@ class DutiesCog(commands.Cog):
 
     @discord.slash_command(description = "Shows percent of duties done.")
     async def percentdone(self, ctx):
-        values = getSheetInfo('Duties')[0]
+        values = getSheetInfo('Duties').get_all_values()
         percent = int(values[len(values) - 1][0])
         p10, p5, p1, p0 = "██", "▓", "▒", "░"
         perc = percent

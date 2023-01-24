@@ -44,8 +44,9 @@ class TablesCog(commands.Cog):
             ctx.respond( atAuth + " you already wiped tables, no need to pass it.")
             return
         newCleaner = random.choice(lodgers)
-        updateTableCleaner(newCleaner)
         await ctx.respond( atAuth + " passed tables off to " + getIDFromName(newCleaner) + "." )
+        updateTableCleaner(newCleaner)
+        
     
     @discord.slash_command()
     @commands.check(isAdmin)
@@ -61,6 +62,8 @@ class TablesCog(commands.Cog):
         await ctx.respond(f"Hey { getIDFromName(info['cleaner']) } this is a reminder to wipe the tables.")
 
     def runtables(self):
+        if not RUN_TABLES:
+            return False
         hour = dt.now().strftime(CRON_TIME_FMT)
         day = dt.now().strftime(CRON_DATE_FMT)
         # if its a weekend
