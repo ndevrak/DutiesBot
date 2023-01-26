@@ -14,6 +14,10 @@ class DutiesCog(commands.Cog):
         print(ctx.command.name)
         return True
 
+    async def cog_command_error(self, ctx, error):
+        if isinstance(error, discord.errors.CheckFailure):
+            await ctx.respond("You do not pass the checks for this command")
+
     @discord.slash_command(description = "Gives link to duties sheet.")
     async def duties(self, ctx):
         await ctx.respond(f'{ctx.author.mention} \nhttps://docs.google.com/spreadsheets/d/1ea1RgZnsXDPV9tngNhNj4icn7Ujm4UphFhp5DcYICt4/edit?usp=sharing')
@@ -88,11 +92,12 @@ class DutiesCog(commands.Cog):
         atAuth = ctx.author.mention
         
         # make sure nobody put LASTNAME as their name
-        if lastname == "LASTNAME":
+        if lastname.lower() == "lastname":
             await ctx.respond( atAuth + " replace 'LASTNAME' with your last name you hooligan." )
             return
         
         # save name through NameHandler
+        lastname = lastname[0].upper() + lastname[1:].lower()
         newData = {atAuth: lastname}
         updateName(newData)
         await ctx.respond( atAuth + ", saved your name as " + lastname + ".")
@@ -136,7 +141,10 @@ class DutiesCog(commands.Cog):
         await ctx.respond( "" + str(percent) + "% of the duties are done\n" + percBar)
     
     async def isAdmin(ctx):
-        return ctx.author.mention in ADMINS
+        id = ctx.author.mention
+        if not checkID(id):
+            return False
+        return getNameFromID(id) in ADMINS
 
     @discord.slash_command(description = "Admin Only - Pings all brothers who have not done their duty.")
     @commands.check(isAdmin)

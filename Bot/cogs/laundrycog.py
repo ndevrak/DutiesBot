@@ -25,6 +25,10 @@ class LaundryCog(commands.Cog):
     def cog_check(self, ctx):
         print(ctx.command.name)
         return True
+    
+    async def cog_command_error(self, ctx, error):
+        if isinstance(error, discord.errors.CheckFailure):
+            await ctx.respond("You do not pass the checks for this command")
         
     @discord.slash_command(description = "Shows the status of all laundry machines.")
     async def laundrystatus(self,ctx):

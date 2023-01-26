@@ -23,12 +23,9 @@ LAUNDRY_CHANNEL_ID = 823721207366680657
 
 SHEET_KEY = "1ea1RgZnsXDPV9tngNhNj4icn7Ujm4UphFhp5DcYICt4"
 
-# Bot admins: Evan, Ethan, Trace, Sam
 # -- To get user ID, type \@USER into Dicord chat
 # -- Admin grants access to: .tables
-ADMINS = [
-    '<@297502550037626891>', '<@194640488043773952>', '<@247226621377904641>', '<@297509765347541016>'
-]
+ADMINS = ["Fouts", "Werner", "Pickholtz"]
 
 ##### Cron Vars
 # Cron time format str

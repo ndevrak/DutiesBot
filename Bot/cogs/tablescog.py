@@ -16,24 +16,36 @@ class TablesCog(commands.Cog):
 
         self.tablesloop.start()
 
+    def cog_check(self, ctx):
+        print(ctx.command.name)
+        return True
+
+    async def cog_command_error(self, ctx, error):
+        if isinstance(error, discord.errors.CheckFailure):
+            pass
+
     async def checkwipingtablestoday(ctx):
-        return getNameFromID(ctx.author.mention) == getTableInfo()["cleaner"]
+        cleaningTablesToday = getNameFromID(ctx.author.mention) == getTableInfo()["cleaner"]
+        if not cleaningTablesToday:
+            await ctx.respond("It's not your turn to wipe tables, can't use this command.")
+            return False
+        return True
     
     async def isAdmin(ctx):
-        return ctx.author.mention in ADMINS
+        id = ctx.author.mention
+        if not checkID(id):
+            return False
+        return getNameFromID(id) in ADMINS
 
     @discord.slash_command()
     @commands.check(checkwipingtablestoday)
     async def wipedtables(self, ctx):
-        # TODO
-        # check when someone uses this its their day to do tables
-        # this requires some refactoring probably
-            # message handler would need access to cron handler then
         atAuth = ctx.author.mention
         checkOffTable(getNameFromID(atAuth))
         await ctx.respond( atAuth + " checked it off, thanks for cleaning the tables!")
     
     @discord.slash_command()
+    @commands.check(checkwipingtablestoday)
     async def passtables(self, ctx):
         atAuth = ctx.author.mention
         lodgers = notCleanedLodgers()
