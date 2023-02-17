@@ -149,6 +149,7 @@ class DutiesCog(commands.Cog):
     @discord.slash_command(description = "Admin Only - Pings all brothers who have not done their duty.")
     @commands.check(isAdmin)
     async def notdone(self, ctx):
+        await ctx.respond("Getting names of brothers...")
         strOut = "These brothers have not done their duty\n"
         # get data once and feed it in for each name to reduce api calls
         data = getSheetInfo("Duties")[0]
@@ -158,7 +159,7 @@ class DutiesCog(commands.Cog):
             # if number of duties is greater than number checked off
             if (len(dutyInfo["duties"]) > sum(dutyInfo["done"])):
                 strOut += "\t" + id + "\n"
-        await ctx.respond(strOut)
+        await ctx.channel.send(strOut)
 
 def setup(bot):
     bot.add_cog(DutiesCog(bot))
