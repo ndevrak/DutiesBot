@@ -23,6 +23,7 @@ class TablesCog(commands.Cog):
     async def cog_command_error(self, ctx, error):
         if isinstance(error, discord.errors.CheckFailure):
             pass
+        print(error)
 
     async def checkwipingtablestoday(ctx):
         cleaningTablesToday = getNameFromID(ctx.author.mention) == getTableInfo()["cleaner"]

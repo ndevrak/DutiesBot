@@ -17,6 +17,7 @@ class DutiesCog(commands.Cog):
     async def cog_command_error(self, ctx, error):
         if isinstance(error, discord.errors.CheckFailure):
             await ctx.respond("You do not pass the checks for this command")
+        print(error)
 
     @discord.slash_command(description = "Gives link to duties sheet.")
     async def duties(self, ctx):
@@ -152,7 +153,7 @@ class DutiesCog(commands.Cog):
         await ctx.respond("Getting names of brothers...")
         strOut = "These brothers have not done their duty\n"
         # get data once and feed it in for each name to reduce api calls
-        data = getSheetInfo("Duties")[0]
+        data = getSheetInfo("Duties").get_all_values()
         for id in getNames().keys():
             name = getNameFromID(id)
             dutyInfo = getDutyInfo(name, data)
