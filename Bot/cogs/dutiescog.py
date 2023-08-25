@@ -10,35 +10,27 @@ class DutiesCog(commands.Cog):
     def __init__(self,bot):
         self.bot = bot
 
-    def cog_check(self, ctx):
+    async def cog_check(self, ctx):
+        # allows people to save name and pass name check
+        if ctx.command.name == "savename":
+            return True
+        #Checking for saved name
+        if not checkID(ctx.author.mention):
+            await ctx.respond(f"{ctx.author.mention} save your name with '/savename LASTNAME'.")
+            return False
+    
         print(ctx.command.name)
         return True
 
-    async def cog_command_error(self, ctx, error):
-        if isinstance(error, discord.errors.CheckFailure):
-            await ctx.respond("You do not pass the checks for this command")
-        print(error)
+    #async def cog_command_error(self, ctx, error):
+    #    if isinstance(error, discord.errors.CheckFailure):
+    #        await ctx.respond("You do not pass the checks for this command")
+    #    print(error)
 
     @discord.slash_command(description = "Gives link to duties sheet.")
     async def duties(self, ctx):
-        await ctx.respond(f'{ctx.author.mention} \nhttps://docs.google.com/spreadsheets/d/1ea1RgZnsXDPV9tngNhNj4icn7Ujm4UphFhp5DcYICt4/edit?usp=sharing')
+        await ctx.respond(f'{ctx.author.mention} \nhttps://docs.google.com/spreadsheets/d/{SHEET_KEY}/edit?usp=sharing')
 
-    @discord.slash_command(description = "Lists off duties of author or person listed.")
-    async def whatsmyduty(self, ctx, person : Option(str, "Who's duties to check.", default = "")):
-        atAuth = ctx.author.mention
-        if person == "":
-            if not checkID(atAuth):
-                await ctx.respond(f"{atAuth} save your name with '/savename LASTNAME'.")
-                return
-            person = getNameFromID(atAuth)
-        else:
-            if not checkName(person):
-                await ctx.respond(f"{person}'s name is not saved, check for mispelling and make sure your name is saved.")
-                return
-        strOut = self.getDutyString(person)
-        await ctx.respond(strOut)
-        return
-    
     def getDutyString(self, person):
         personID = getIDFromName(person)
         dutyInfo = getDutyInfo(person)
@@ -57,21 +49,32 @@ class DutiesCog(commands.Cog):
             strOut += tempStr + "\n"
         return strOut
 
+    @discord.slash_command(description = "Lists off duties of author or person listed.")
+    async def whatsmyduty(self, ctx, person : Option(str, "Who's duties to check.", default = "")):
+        atAuth = ctx.author.mention
+        if person == "":
+            person = getNameFromID(atAuth)
+        strOut = self.getDutyString(person)
+        await ctx.respond(strOut)
+        return
+    
+    @discord.slash_command(description = "Gives descriptions of your duties.")
+    async def describeduty(self, ctx, person : Option(str, "Who's duties to check.", default = "")):
+        atAuth = ctx.author.mention
+        if person == "":
+            person = getNameFromID(atAuth)
+        strOut = self.getDutyString(person)
+        await ctx.respond(strOut)
+        return
+
     @discord.slash_command(description = "Checks off all (or chosen) duties for author (or person).")
-    async def didduty(self, 
-                    ctx,
+    async def didduty(self, ctx,
                     whos : Option(str, "Who's duty did you do?", default=""),
                     number : Option(int, "Duty number, only 1 at a time", default=-1)
                     ):
         
         if whos == "":
-            if not checkID(ctx.author.mention):
-                await ctx.respond(f"{ctx.author.mention} save your name with '/savename LASTNAME'.")
-                return
             whos = getNameFromID(ctx.author.mention)
-        if not checkName(whos):
-            await ctx.respond(f"{whos} your name is not saved , check for mispelling and make sure your name is saved.")
-            return
         dutyInfo = getDutyInfo(whos)
 
         if number < 0:
@@ -111,7 +114,7 @@ class DutiesCog(commands.Cog):
             if not checkID(name):
                 await ctx.respond( atAuth + " unknown user ID")
                 return
-            await ctx.respond(atAuth + f" name is {getNameFromID(name)}")
+            await ctx.respond(atAuth + f", the name is {getNameFromID(name)}")
             return
         
         name = name[0].upper() + name[1:]
@@ -124,8 +127,9 @@ class DutiesCog(commands.Cog):
 
     @discord.slash_command(description = "Shows percent of duties done.")
     async def percentdone(self, ctx):
-        values = getSheetInfo('Duties').get_all_values()
-        percent = int(values[len(values) - 1][0])
+        values = getSheetInfo('[Duties]').get_all_values()
+        percent = int(values[len(values) - 1][0][:-3])
+        print(percent)
         p10, p5, p1, p0 = "██", "▓", "▒", "░"
         perc = percent
         percBar = ""
@@ -138,7 +142,6 @@ class DutiesCog(commands.Cog):
         if perc > 0:
             percBar += p1
         percBar += p0 * (20-len(percBar))
-
         await ctx.respond( "" + str(percent) + "% of the duties are done\n" + percBar)
     
     async def isAdmin(ctx):
@@ -153,7 +156,7 @@ class DutiesCog(commands.Cog):
         await ctx.respond("Getting names of brothers...")
         strOut = "These brothers have not done their duty\n"
         # get data once and feed it in for each name to reduce api calls
-        data = getSheetInfo("Duties").get_all_values()
+        data = getSheetInfo('[Duties]').get_all_values()
         for id in getNames().keys():
             name = getNameFromID(id)
             dutyInfo = getDutyInfo(name, data)

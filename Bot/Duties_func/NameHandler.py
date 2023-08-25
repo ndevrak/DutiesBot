@@ -1,30 +1,29 @@
-import json
+import yaml
 
-json_path = "Bot/Duties_func/ids_names.json"
-    
-def getNames():
-    global json_path
-    return readJson(json_path)
+yaml_path = "Bot/yamls/ids_names.yaml"
 
-def readJson(json_path):
-    with open(json_path, 'r') as f:
-        data = json.load(f)
+def readYAML():
+    global yaml_path
+    with open(yaml_path,'r') as file:
+        data = yaml.safe_load(file)
     return data
-    
-def updateJson(filename, newData):
-    # Warning : be careful with this updateJson
-        # new data is added directly to top level dictionary
-    data = readJson(filename)
+
+def updateYAML(newData):
+    global yaml_path
+    data = readYAML()
     for k in newData.keys():
         data[k] = newData[k]
-    with open(filename, 'w') as file:
-        json.dump(data, file)
+    with open(yaml_path, 'w') as file:
+        yaml.safe_dump(data, file)
+
+def getNames():
+    return readYAML()
     
 def updateName(newData):
-    global json_path
-    # use this most of the time, not updateJson
-    # it makes sure that code internal name values match the json
-    updateJson(json_path, newData)
+    global yaml_path
+    # use this most of the time, not updateYAML
+    # it makes sure that code internal name values match the yaml
+    updateYAML(newData)
 
 def checkID(atAuthor):
     return atAuthor in getNames().keys()

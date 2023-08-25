@@ -5,20 +5,13 @@ from discord.commands import Option
 
 from datetime import datetime as dt
 
-from ..Laundry_func import *
+from ..Duties_func.LaundryHandler import *
 from constants import *
 
 class LaundryCog(commands.Cog):
     
     def __init__(self,bot):
         self.bot = bot
-
-        self.machines = {
-                "w1" : {"name" : "washer 1", "deftime" : wash_time_def},
-                "w2" : {"name" : "washer 2", "deftime" : wash_time_def},
-                "d1" : {"name" : "drier 1", "deftime" : dry_time_def},
-                "d2" : {"name" : "drier 2", "deftime" : dry_time_def}
-            }
         
         self.laundry_loop.start()
     
@@ -35,13 +28,13 @@ class LaundryCog(commands.Cog):
     async def laundrystatus(self,ctx):
         #goes through each machine and reports the status
         outStr = f"{ctx.author.mention} the status of the laundry machines is:\n"
-        for m in self.machines.keys():
+        for m in getMachines():
             minutes = minTillDone(m)
             if minutes >= 0:
                 outStr += f" {m} has {minutes} min left.\n"
             else:
                 minutes = "many" if abs(minutes) > 300 else str(-1*minutes)
-                outStr += f" {m} was run by {readMachine(m)['whoRan']} has been done for {minutes} min.\n"
+                outStr += f" {m} was run by {getMachine(m)['whoRan']} has been done for {minutes} min.\n"
         await ctx.respond(outStr)
     
     @discord.slash_command(description = "Resets a washer / drier.")
@@ -53,7 +46,7 @@ class LaundryCog(commands.Cog):
         minutes = minTillDone(machine)
 
         if minutes >= 0:
-            await ctx.respond(ctx.author.mention + " the machine is in use by " + readMachine(machine)["whoRan"] + " and has " + str(minutes) + " min left.")
+            await ctx.respond(ctx.author.mention + " the machine is in use by " + getMachine(machine)["whoRan"] + " and has " + str(minutes) + " min left.")
             return
         
         setMachine(machine, ctx.author.mention, time)
@@ -66,18 +59,18 @@ class LaundryCog(commands.Cog):
         await self.machineMessage(ctx, machine, time)
     
     @discord.slash_command(description = "Starts a timer for a drier.")
-    async def drier(self, ctx, num : Option(int, required = True), time : Option(int, default = dry_time_def)):
+    async def dryer(self, ctx, num : Option(int, required = True), time : Option(int, default = dry_time_def)):
         machine = "d" + str(num)
         await self.machineMessage(ctx,machine,time)
 
     @tasks.loop(minutes = 1)
     async def laundry_loop(self):
-        for m in self.machines:
+        for m in getMachines():
             min = minTillDone(m)
-            if min < 0 and readMachine(m)["notified"] == 0:
+            if min < 0 and getMachine(m)["notified"] == 0:
                 channel = await self.bot.fetch_channel(LAUNDRY_CHANNEL_ID)
                 updateNotified(m)
-                await channel.send(f"{readMachine(m)['whoRan']} your laundry in {m} is done!")
+                await channel.send(f"{getMachine(m)['whoRan']} your laundry in {m} is done!")
 
 def setup(bot):
     bot.add_cog(LaundryCog(bot))
