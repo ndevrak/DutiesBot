@@ -1,0 +1,28 @@
+d1:
+  lastRan: 23-06-18 18:52
+  machine: dryer
+  notified: 1
+  num: 2
+  runTime: 3
+  whoRan: <@297509765347541016>
+d2:
+  lastRan: 22-12-11 22:16
+  machine: dryer
+  notified: 2
+  num: 2
+  runTime: 29
+  whoRan: <@171087163428044800>
+w1:
+  lastRan: 23-06-18 16:14
+  machine: washer
+  notified: 1
+  num: 1
+  runTime: 2
+  whoRan: <@297509765347541016>
+w2:
+  lastRan: 23-06-06 18:36
+  machine: washer
+  notified: 1
+  num: 2
+  runTime: 8
+  whoRan: <@297509765347541016>
