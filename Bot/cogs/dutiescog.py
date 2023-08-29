@@ -34,6 +34,7 @@ class DutiesCog(commands.Cog):
     def getDutyString(self, person):
         personID = getIDFromName(person)
         dutyInfo = getDutyInfo(person)
+
         if len(dutyInfo["duties"]) == 0:
             return "You have no duties this week " + personID + " !!"
             

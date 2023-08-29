@@ -20,30 +20,31 @@ def getDutyInfo(name, data = None):
         data = getSheetInfo('[Duties]').get_all_values()
     # empty dictionary for duties info
     outDict = {"duties" : [], "rooms" : [], "floors" :[], "done" : [], "coords" : []}
-
     # go through rows of data
     for i,e in enumerate(data):
         try:
-            #name row is just i
-            nameRow = i
-            #try to find name in the row
-            nameCol = e.index(name)
-            #add duty name to outdict
-            outDict["duties"].append(data[nameRow][nameCol-2])
-            #search vertically for the room name
-            roomRow = nameRow
-            while not (data[roomRow][nameCol-2] == ""):
-                roomRow -= 1
+            nameCol = -1
+            while True:
+                #name row is just i
+                nameRow = i
+                #try to find name in the row
+                nameCol = e.index(name, nameCol+1)
+                #add duty name to outdict
+                outDict["duties"].append(data[nameRow][nameCol-2])
+                #search vertically for the room name
+                roomRow = nameRow
+                while not (data[roomRow][nameCol-2] == ""):
+                    roomRow -= 1
 
-            #add rooms floors and duty coords to the output
-            outDict["rooms"].append(data[roomRow + 1][nameCol-2])
-            outDict["floors"].append(data[0][nameCol-2])
-            outDict["coords"].append([nameRow+1, nameCol+2])
-            #check if duty is done
-            if data[nameRow][nameCol+1] == "TRUE":
-                outDict["done"].append(1)
-            else:
-                outDict["done"].append(0)
+                #add rooms floors and duty coords to the output
+                outDict["rooms"].append(data[roomRow + 1][nameCol-2])
+                outDict["floors"].append(data[0][nameCol-2])
+                outDict["coords"].append([nameRow+1, nameCol+2])
+                #check if duty is done
+                if data[nameRow][nameCol+1] == "TRUE":
+                    outDict["done"].append(1)
+                else:
+                    outDict["done"].append(0)
         except ValueError:
             pass
     return outDict
